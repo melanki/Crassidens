@@ -197,7 +197,10 @@ Orca's registry (`src/shared/tui-agent-config.ts`) is a ready reference for ~45 
   - Linear's own GitHub integration already moves issues when a PR is opened or merged. So the defaults are on for `started` and off for review and merge, to avoid moving the issue twice.
   - The mapping is set per team.
 
-**GitHub** (RV-3, GH-1): everything goes through the `gh` CLI (`gh auth token`, `gh api`, `gh pr …`), as Orca does. Crassidens holds no GitHub credentials of its own.
+**GitHub** (RV-3, GH-1, GH-2): everything goes through the `gh` CLI (`gh auth token`, `gh api`, `gh pr …`), as Orca does. Crassidens holds no GitHub credentials of its own.
+
+- **PR inbox:** filled by two `gh api graphql` searches, `is:pr is:open author:@me` and `is:pr is:open review-requested:@me`, limited to the added repos. It is refreshed on focus and every few minutes.
+- **Insights for a PR:** `refs/pull/<n>/head` is fetched into a host-owned detached worktree, and the insight job (§10) runs against it, with base set to the PR's merge base.
 
 ## 10. PR insights and auto wiki
 
@@ -212,7 +215,7 @@ Insights and wiki pages are jobs in a queue in the host.
 - **Read-only enforcement:** after every job, `git status --porcelain` must be empty. If it isn't, the result is discarded and the run is flagged.
 - **Recorded per run:** cost and token counts, where the agent reports them.
 
-### PR insights (PI-1…5)
+### PR insights (PI-1…4)
 
 1. **Context:** the diff (base…head, minus `exclude`), commit messages, PR body, linked Linear issue, and the wiki pages whose source sets overlap the changed paths.
 2. **Large diffs:** grouped by component, analysed per group, then merged into one insight.
@@ -220,11 +223,11 @@ Insights and wiki pages are jobs in a queue in the host.
 
    ```text
    Insight {
-     intent:      { summary, rationale, matchesPrompt? }      // matchesPrompt for fan-out (PI-4)
-     impact:      [{ component, wikiPage?, kind: interface|data|config|behaviour, summary, evidence[] }]
-     design:      { fit, newAbstractions[], newDependencies[], notes }
-     risk:        { level: low|medium|high, reasons: [{ text, evidence[] }] }
-     reviewFocus: [{ path, lines, why }]
+     intent:       { summary, rationale }
+     designImpact: { components: [{ name, wikiPage?, kind: interface|data|config|behaviour, summary, evidence[] }],
+                     fit, newAbstractions[], newDependencies[] }
+     risk:         { level: low|medium|high, reasons: [{ text, evidence[] }],
+                     reviewFocus: [{ path, lines, why }] }
    }
    Evidence = { path, startLine, endLine }
    ```
@@ -295,11 +298,11 @@ docs/
 |---|---|
 | **M0** | Time-boxed spikes:<br>• PTY, headless VT, snapshot and attach<br>• Claude `--settings` hook merging and Codex hooks<br>• Monaco typing in `WKWebView`<br>• `WKWebView` automation (synthetic vs native events)<br>• GhosttyKit embedding<br>• headless agent flags |
 | **M1** | Core loop: host, repos, workspaces, sessions, terminal, agent state, notifications, workspace view, overview, basic CLI and hooks |
-| **M2** | Review and annotations, Linear (LN-1…5), fan-out with a compare view |
+| **M2** | Review and annotations, Linear (LN-1…5) |
 | **M3** | Browser (BR-1…4) |
-| **M4** | PR insights and GitHub |
+| **M4** | PR insights and GitHub PR tooling |
 | **M5** | Auto wiki |
-| **M6** | Companion, then the remaining Later items |
+| **M6** | Companion, then SSH workspaces and usage tracking |
 
 ## 15. Risks
 
