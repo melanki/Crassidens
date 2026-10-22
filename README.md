@@ -12,7 +12,9 @@ I like Orca, but it isn't 100% what I want. Crassidens is my own build of the sa
 2. **A built-in browser:** shared by the user and the agents, with Design Mode and agent automation.
 3. **Built-in Linear:** issues become worktrees, and issue status follows the work.
 4. **Auto wiki:** a generated, continuously updated wiki of each repository, readable by people and agents.
-5. **PR insights:** for any change, a rendered summary of its intent and how it affects the system, covering design and risk.
+5. **PR insights:** for any change, a summary of its intent, its system design impact and its risk. GitHub PR review is built around these summaries.
+
+Only the Orca features the specification lists are in scope.
 
 It is native Swift on macOS and iOS only. It is not a fork: Orca is the reference for behaviour and UX. Orca is MIT-licensed, so its code may be reused as long as its copyright notice is kept.
 

@@ -10,9 +10,9 @@ Crassidens is a native macOS app for running many CLI coding agents in parallel,
 2. **Built-in browser.** Agents and the user share a browser per worktree, with Design Mode and agent automation.
 3. **Built-in Linear.** Issues become worktrees, and issue status follows the worktree's lifecycle.
 4. **Auto wiki.** A generated, continuously updated wiki of each repository, readable by both people and agents. Orca has nothing like this.
-5. **PR insights.** For any change, a rendered summary of its intent and its effect on the system: design and risk. Orca has nothing like this.
+5. **PR insights and PR tooling.** For any change, a summary of its intent, its system design impact and its risk. GitHub PRs are reviewed through these summaries. Orca has nothing like this.
 
-Items 1–3 are **Core**. Items 4–5 are **Next**. The remaining Orca features follow afterwards.
+Items 1–3 are **Core**. Items 4–5 are **Next**. Only the Orca features this spec lists are in scope; the rest are left out on purpose (§6).
 
 ## 2. Scope
 
@@ -36,10 +36,9 @@ Items 1–3 are **Core**. Items 4–5 are **Next**. The remaining Orca features 
 | Workspace | One unit of work: a worktree, its branch, its sessions, its browser and an optional linked Linear issue. |
 | Agent profile | How to launch one CLI agent: command, arguments, environment, and how its state is reported. |
 | Session | A process running in a PTY (an agent or a shell). Owned by the session host, not the UI. |
-| Fan-out group | Workspaces created from the same prompt across several agent profiles. |
 | Annotation | A review comment on a diff line, queued to be sent to a session. |
 | Wiki | Generated documentation for one repository, pinned to a commit. |
-| Insight | A generated analysis of one change (a base…head range): intent, impact, design, risk. |
+| Insight | A generated analysis of one change (a base…head range): intent, system design impact, risk. |
 | Host / Companion | The Mac running the sessions / the iOS app paired with it. |
 
 ## 4. Functional requirements
@@ -83,7 +82,6 @@ IDs are stable; reference them from issues and PRs.
 
   The state comes from the agent's own hooks where the agent supports them, and from terminal signals otherwise ([system-design §5](system-design.md#5-agent-state)).
 - **AG-3** Start an agent in a workspace with an initial prompt. If the workspace has a linked issue, the prompt is pre-filled from it.
-- **AG-4** Fan-out: send one prompt to N profiles, each in its own workspace. A compare view shows each candidate's diff stats, diff and insight (PI-4). Picking a winner opens a PR from it and archives the others.
 
 #### Terminal
 
@@ -136,16 +134,27 @@ IDs are stable; reference them from issues and PRs.
 
 #### PR insights
 
-- **PI-1** For any change (a workspace diff, a local branch or a GitHub PR), generate an insight with five parts:
+- **PI-1** For any change (a workspace diff, a local branch or a GitHub PR), generate an insight with three parts:
   - **Intent:** what the change is for and why. Inferred from the diff, commit messages, PR description and linked Linear issue.
-  - **System impact:** which components are affected, linked to their wiki pages (WK-1). Calls out changes to public interfaces, data or schema, and configuration.
-  - **Design:** how well the change fits existing patterns, any new abstractions or dependencies, and whether it shifts how the code is structured or coupled.
-  - **Risk:** `low`, `medium` or `high`. Every reason cites evidence (a file and line range), for example migrations, auth or security-sensitive code, concurrency, or untested changed code.
-  - **Review focus:** the hunks to read first, in order.
+  - **System design impact:**
+    - which components are affected, linked to their wiki pages (WK-1)
+    - changes to public interfaces, data or schema, and configuration
+    - how well the change fits existing patterns
+    - any new abstractions or dependencies
+    - whether it shifts how the code is structured or coupled
+  - **Risk:** `low`, `medium` or `high`.
+    - Every reason cites evidence (a file and line range), for example migrations, auth or security-sensitive code, concurrency, or untested changed code.
+    - Ends with the hunks to review first, in order.
 - **PI-2** The insight renders above the diff in the review view. Every claim links to the hunk it refers to.
 - **PI-3** Insights are cached per (base, head, prompt version). When head moves, the insight is marked stale and regenerates on request or automatically (configurable).
-- **PI-4** The fan-out compare view shows the candidates' insights side by side, including how closely each one's intent matches the original prompt.
-- **PI-5** Posting an insight as a GitHub PR comment or a Linear comment is an explicit user action. It is never automatic.
+- **PI-4** Posting an insight as a GitHub PR comment or a Linear comment is an explicit user action. It is never automatic.
+
+#### GitHub PR tooling
+
+- **GH-1** A PR inbox shows open PRs across the added repos that I authored or that request my review. Each row shows the insight's intent line and its risk level.
+- **GH-2** The PR view leads with the insight (PI-1): intent, then system design impact, then risk with its review focus. The full diff comes after it, in the RV-1 layout. Insights for PRs requesting my review are generated when the PR is opened, or ahead of time (configurable).
+
+GitHub issues and project boards are out of scope.
 
 #### Auto wiki
 
@@ -162,13 +171,8 @@ IDs are stable; reference them from issues and PRs.
 - **WK-4** Agents can read the wiki through `crassidens wiki search|show`, so they can use it as context without re-reading the codebase.
 - **WK-5** The wiki and insights are generated by running one of the user's agent profiles headless and read-only. Each run records the profile, the duration and the cost reported by the agent.
 
-#### Other Next items
+#### Files and previews
 
-- **GH-1** GitHub:
-  - list a repo's issues and PRs
-  - create a workspace from either
-  - show PR and check status in the overview
-  - insights for open PRs (PI-1)
 - **FP-1** A file explorer per workspace. Dragging a file or image onto a session inserts it into the prompt.
 - **FP-2** Previews for Markdown (rich editing), images and PDF.
 
@@ -185,7 +189,6 @@ IDs are stable; reference them from issues and PRs.
 - **CP-4** Works outside the local network through a relay. Traffic is end-to-end encrypted, so the relay can't read session content.
 - **US-1** Show Claude Code and Codex usage with rate-limit reset times, and switch accounts.
 - **RM-1** SSH workspaces: the worktree and sessions run on a remote host, while the UI stays local.
-- **RM-2** Computer use: agents can operate macOS apps through the CLI.
 
 ## 5. Non-functional requirements
 
@@ -204,10 +207,10 @@ IDs are stable; reference them from issues and PRs.
 
 | Area | Orca | Crassidens |
 |---|---|---|
-| Focus | A broad feature set | Worktree agent views, browser and Linear first |
+| Scope | A broad feature set | The five focus areas, plus only the Orca features this spec lists. Left out: fan-out and orchestration, computer use, GitHub issues and project boards, Jira |
 | Auto wiki | — | WK-1…5 |
-| PR insights | — | PI-1…5 |
-| Fan-out | A manual recipe: create N worktrees and paste the prompt into each | Built in, with a compare view (AG-4, PI-4) |
+| PR insights | — | PI-1…4 |
+| GitHub | PR status, checks, comments, merge, issues, Projects | PR tooling built on insights (GH-1, GH-2) |
 | Linear | Issues, comments, projects, views; create a worktree from an issue | The same, plus status that follows the workspace (LN-4) |
 | Agent hooks | Written into the user's global agent config | Injected per session where the agent allows it |
 | Push notifications | The push service sees titles and bodies in plaintext | End-to-end encrypted and decrypted on the phone |
@@ -220,6 +223,7 @@ IDs are stable; reference them from issues and PRs.
 
 - **Wiki storage:** local only (proposed), or committed to the repo (for example `docs/wiki/`) so it is versioned and shared?
 - **Default profile for wiki and insights:** which agent and model? Cost scales with repo size for WK-1 and with diff size for PI-1.
+- **GitHub reviews:** should the PR tooling also submit reviews (line comments, approve, request changes) from the app, or only read, apart from PI-4?
 - Which agent profiles ship beyond the three in AG-1?
 - License.
 - A short alias for the `crassidens` CLI.
