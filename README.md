@@ -33,5 +33,5 @@ It is native Swift on macOS and iOS only. It is not a fork: Orca is the referenc
 ## For agents picking this up
 
 1. Read the specification, then the system design. Requirement IDs (WS-1, PI-2, …) are the shared vocabulary, so reference them in issues, commits and PRs.
-2. Work milestone by milestone ([system design §14](docs/system-design.md#14-milestones)). Start with the M0 spikes, because several design choices depend on their results.
+2. Pick up work from the [issues](https://github.com/melanki/Crassidens/issues), milestone by milestone ([system design §14](docs/system-design.md#14-milestones)). Start with the M0 spikes, because several design choices depend on their results. When a spike finishes, record its outcome in the design doc section it names.
 3. Record new decisions in [system design §16](docs/system-design.md#16-decisions) with a date. Don't guess at open questions; ask me.

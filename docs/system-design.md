@@ -294,14 +294,16 @@ docs/
 
 ## 14. Milestones
 
+Each milestone is tracked as a [GitHub milestone](https://github.com/melanki/Crassidens/milestones), with one issue per work item.
+
 | | Scope |
 |---|---|
-| **M0** | Time-boxed spikes:<br>• PTY, headless VT, snapshot and attach<br>• Claude `--settings` hook merging and Codex hooks<br>• Monaco typing in `WKWebView`<br>• `WKWebView` automation (synthetic vs native events)<br>• GhosttyKit embedding<br>• headless agent flags |
+| **M0** | Repo scaffolding and CI, then time-boxed spikes:<br>• PTY, headless VT, snapshot and attach<br>• Claude `--settings` hook merging and Codex hooks<br>• Monaco typing in `WKWebView`<br>• `WKWebView` automation (synthetic vs native events)<br>• GhosttyKit embedding<br>• headless agent flags |
 | **M1** | Core loop: host, repos, workspaces, sessions, terminal, agent state, notifications, workspace view, overview, basic CLI and hooks |
-| **M2** | Review and annotations, Linear (LN-1…5) |
+| **M2** | Review, annotations, file explorer and editing, Linear (LN-1…5) |
 | **M3** | Browser (BR-1…4) |
 | **M4** | PR insights and GitHub PR tooling |
-| **M5** | Auto wiki |
+| **M5** | Auto wiki, then previews (FP-2) |
 | **M6** | Companion, then SSH workspaces and usage tracking |
 
 ## 15. Risks
